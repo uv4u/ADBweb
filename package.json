@@ -1,0 +1,21 @@
+{
+  "name": "adb",
+  "version": "1.0.0",
+  "description": "adb",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "adbkit": "^2.11.1",
+    "adbkit-logcat": "^2.0.1",
+    "bluebird": "^3.7.2",
+    "body-parser": "^1.20.2",
+    "child_process": "^1.0.2",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "node-fetch": "^3.3.2"
+  }
+}
