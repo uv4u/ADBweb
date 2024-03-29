@@ -60,18 +60,8 @@ const App = () => {
     setLoading(false);
 };
 
-  const handleStopLogcat = async () => {
-    try {
-      const response = await axios.get('http://localhost:3001/stop-logcat');
-      console.log('Logcat stopped successfully');
-      alert('Logcat stopped successfully');
-    } catch (error) {
-      console.error('Error stopping logcat:', error);
-      alert('Error stopping logcat');
-    } 
-  };
+// Fetch device ID when component mounts
 
-  // Fetch device ID when component mounts
   useEffect(() => {
     const fetchDeviceID = async () => {
       try {
@@ -139,7 +129,6 @@ const App = () => {
       ></textarea>
     </div>
       <button class="btn btn-primary" onClick={handleFetchLogs}>Fetch Logs</button>
-      <button className="btn btn-danger ms-2" onClick={handleStopLogcat}>Stop Logcat</button>
   </div>
 </div>
 
