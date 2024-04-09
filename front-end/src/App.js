@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
+
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -18,6 +19,9 @@ const App = () => {
 
 
   const notify = (req) => toast(req);
+
+
+
 
   useEffect(() => {
     const fetchDeviceID = async () => {
@@ -171,7 +175,7 @@ const writeToFile = async () => {
           onChange={(e) => setApkPath(e.target.value)}
           />
       </div>
-      <button class="btn btn-primary" type="submit">Install APK</button>
+      <button class="btn btn-primary" type="submit" disabled={!apkPath.trim()}>Install APK</button>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={open}
@@ -194,9 +198,9 @@ const writeToFile = async () => {
       <div>
       <button class="btn btn-primary left" onClick={handleFetchLogs}>Fetch Logs</button>
       &nbsp;
-      <button class='btn btn-secondary' onClick={eraseText}>Clear</button>
+      <button class='btn btn-secondary' disabled={!logs.length} onClick={eraseText}>Clear</button>
       &nbsp;
-      <button className='btn btn-success' onClick={writeToFile}>Export Logs</button>
+      <button className='btn btn-success' onClick={writeToFile} disabled={!logs.length}>Export Logs</button>
       </div>
   </div>
   <ToastContainer />

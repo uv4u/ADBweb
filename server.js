@@ -103,53 +103,6 @@ app.get('/device-logs', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching device logs' });
   }
 });
-// app.get('/device-logs', (req, res) => {
-//   const proc = spawn('adb', ['logcat', '-B', 'all' , '*:F', '*:E']);
-
-//   // Connect logcat to the stream
-//   const reader = logcat.readStream(proc.stdout);
-
-//   let crashDetected = false; // Flag to track if a crash is detected
-//   let logs=[]
-
-//   // Event handler for logcat entries
-//   reader.on('entry', entry => {
-//     console.log(entry);
-    
-//     // Check if the log entry indicates a crash
-//     if (entry.priority === 'F' || entry.priority === 'E' || entry.message.includes('com.jio.photos')) {
-//       console.log('Crash detected');
-//       console.log(entry.message);
-
-//       logs.push(entry.message);
-//       crashDetected = true;
-//       proc.kill(); // Kill the logcat process
-//     }
-//   });
-
-//   let responseSent = false; // Flag to track whether response has been sent
-
-//   proc.on('exit', (code, signal) => {
-//       console.log(`Logcat process exited with code ${code} and signal ${signal}`);
-  
-//       // If the process exited but no crash was detected and response hasn't been sent yet, handle it here
-//       if (!crashDetected && !responseSent) {
-//           // Handle the case where logcat exited without detecting a crash
-//           console.log('No crash detected');
-//           responseSent = true; // Set flag to true to indicate response has been sent
-//           res.status(200).json({ logs: logs, message: 'No crash detected' });
-//       }
-//   });
-  
-//   // Send response if a crash is detected and response hasn't been sent yet
-//   reader.on('end', () => {
-//       if (crashDetected && !responseSent) {
-//           responseSent = true; // Set flag to true to indicate response has been sent
-//           res.status(500).json({ logs: logs, message: 'Crash detected' });
-//       }
-//   });
-// });
-
 
 //INSTALL PART
 app.get('/install-apk', async (req, res) => {
