@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import './style.css'
 
 
 import { ToastContainer, toast } from 'react-toastify';
@@ -14,6 +15,10 @@ const App = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [ipAddress, setIpAddress] = useState('');
+  const [port, setPort] = useState('');
+  const [connectedDevice, setConnectedDevice] = useState(null);
 
   const [open, setOpen] = React.useState(false);
 
@@ -138,19 +143,46 @@ const writeToFile = async () => {
   }
 };
 
+//////////////////////////////////////////////////////////////////
+// const connectToDevice = async () => {
+//   try {
+//     console.log('here');
+//     setLoading(true);
+//     const response = await axios.post('http://localhost:3001/connect-device', {
+//       ipAddress: ipAddress,
+//       port: parseInt(port), // Convert port to integer
+//     });
+//     console.log(`ip: ${ipAddress} of type ${typeof(ipAddress)}`);
+//     console.log(`port: ${port} of type ${typeof(port)}`);
+//     setConnectedDevice(response.data.deviceInfo);
+//     notify(`Connected to device: ${response.data.deviceInfo.id}`);
+//   } catch (error) {
+//     console.log('Error connecting to device:', error);
+//     // notify('Failed to connect to device');
+//     alert('Failed to connect to device');
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+
+////////////////////////////////////////////////////////////////
+
   return (
-<div class='bg-light'>
-      <nav class="navbar navbar-light bg-dark">
+<div style={{background:'#EEEDEB'}}>
+      <nav class="navbar" style={{background:'#3C3633'}}>
   <div class="container">
-    <span class="navbar-brand mb-0 h1 bg-dark">ADBWeb</span>
+    <span class="navbar-brand h1" style={{color:'#EEEDEB'}}>ADBWeb</span>
   </div>
 </nav>
 
-<div class="container-sm">
+<div class="container-sm" style={{padding:100}}>
+<div class="card text-white mb-3" style={{padding:50, borderRadius:80, background:'#3C3633', borderColor:'#E0CCBE', borderWidth:2}}>
+  <div class="card-body container-sm" >
   <div class="jumbotron">
     <form onSubmit={handleSubmit}>
       <div class="row mb-3">
-        <label for="deviceId" class="form-label">Device ID:</label>
+        <label for="deviceId" class="form-label"><h6>Device ID:</h6></label>
         <div class="col-sm-10">
           {deviceId ? (
             <input
@@ -160,13 +192,13 @@ const writeToFile = async () => {
             value={deviceId}
             readonly
             />
-            ) : (
-              <span>No device connected</span>
-              )}
+          ) : (
+            <span>No device connected</span>
+          )}
         </div>
       </div>
       <div class="mb-3">
-        <label for="apkPath" class="form-label">APK Path:</label>
+        <label for="apkPath" class="form-label"><h6>APK Path:</h6></label>
         <input
           type="text"
           class="form-control"
@@ -175,7 +207,7 @@ const writeToFile = async () => {
           onChange={(e) => setApkPath(e.target.value)}
           />
       </div>
-      <button class="btn btn-primary" type="submit" disabled={!apkPath.trim()}>Install APK</button>
+      <button className={`button-34 ${!apkPath.trim()?'':'valid'}`} type="submit" disabled={!apkPath.trim()}>Install APK</button>
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={open}
@@ -184,8 +216,37 @@ const writeToFile = async () => {
       </Backdrop>
       {open && <Backdrop/>}
     </form>
+    {/* <div className='IP'>
+      <h1>Connect to Device</h1>
+      <div>
+        <input
+          type="text"
+          value={ipAddress}
+          placeholder="Enter IP address"
+          onChange={(e) => setIpAddress(e.target.value)}
+        />
+        <input
+          type="text"
+          value={port}
+          placeholder="Enter port"
+          onChange={(e) => setPort(e.target.value)}
+        />
+        <button onClick={connectToDevice} disabled={loading}>
+          {loading ? 'Connecting...' : 'Connect'}
+        </button>
+      </div>
+      {connectedDevice && (
+        <div>
+          <h2>Connected Device</h2>
+          <p>ID: {connectedDevice.id}</p>
+          {/* Display other device information as needed */}
+        {/* </div> */}
+      {/* )} */}
+      {/* <ToastContainer /> 
+    </div> */}
     <div class="mb-3">
-      <label for="logTextArea" class="form-label">Logs:</label>
+      <label for="logTextArea" class="form-label"><h6>Logs:</h6></label>
+      {logs.length===0?<p>No Logs found</p>:
       <textarea class="form-control" 
       id="logTextArea" 
       rows="10" 
@@ -194,17 +255,21 @@ const writeToFile = async () => {
       value={logs.join('\n')}
       readOnly
       ></textarea>
+    }
+      
     </div>
-      <div>
-      <button class="btn btn-primary left" onClick={handleFetchLogs}>Fetch Logs</button>
+      <div className='flex-box' style={{gap:16}}>
+      <button class="button-34 valid" onClick={handleFetchLogs}>Fetch Logs</button>
       &nbsp;
-      <button class='btn btn-secondary' disabled={!logs.length} onClick={eraseText}>Clear</button>
+      <button className={`button-34 ${!logs.length?'':'valid'}`} disabled={!logs.length} onClick={eraseText}>Clear</button>
       &nbsp;
-      <button className='btn btn-success' onClick={writeToFile} disabled={!logs.length}>Export Logs</button>
+      <button className={`button-34 ${!logs.length?'':'valid'}`} onClick={writeToFile} disabled={!logs.length}>Export Logs</button>
       </div>
   </div>
   <ToastContainer />
 </div>
+    </div>
+    </div>
       </div>
 
   );

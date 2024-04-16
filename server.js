@@ -40,6 +40,40 @@ const getDeviceID = async () => {
   }
 };
 
+//ESTABLISH CONNECTION USING IP AND PORT
+
+// const connectToDevice = async (ipAddress, port) => {
+//   try {
+//     // Ensure ipAddress is a string and port is a number
+//     if (typeof ipAddress !== 'string' || typeof port !== 'number') {
+//       throw new Error('Invalid ipAddress or port');
+//     }
+
+//     const device = await client.connect({ host: ipAddress, port: port });
+//     return device;
+//   } catch (error) {
+//     console.error('Error connecting to device:', error);
+//     throw new Error('Failed to connect to device');
+//   }
+// };
+
+// app.post('/connect-device', async (req, res) => {
+//   const { ipAddress, port } = req.body; // Get IP address and port from request body
+//   console.log(typeof(ipAddress));
+
+//   console.log(`ip: ${ipAddress} of type ${typeof(ipAddress)} and port: ${port} of type ${typeof(port)}`);
+
+//   try {
+//     const device = await connectToDevice(ipAddress, port);
+//     const deviceInfo = await client.getProperties(device.id); // Get device properties
+
+//     res.status(200).json({ message: 'Connected to device', deviceInfo });
+//   } catch (error) {
+//     console.error('Error connecting to device:', error);
+//     res.status(500).json({ error: 'An error occurred while connecting to the device' });
+//   }
+// });
+
 app.get('/device-id', async(req, res) => {
   try{
     const deviceID = await getDeviceID();
@@ -160,6 +194,10 @@ app.post('/export-logs', (req, res) => {
     res.status(500).json({ error: 'An error occurred while exporting logs' });
   }
 });
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 app.listen(3001, () => {
