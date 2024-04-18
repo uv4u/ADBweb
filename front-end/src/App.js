@@ -115,7 +115,15 @@ const App = () => {
         notify("Device Connection Failed");
       } else {
         if (error.response.data) {
-          setLogs(error.response.data.logs);
+          var logString = JSON.stringify(error.response.data.logs);
+          logString = logString.replace(/,(?=\s*["\w]+:)/g, ",\n");
+          var logsArray = JSON.parse(logString);
+          var formattedLogs = "";
+          logsArray.forEach(function (log) {
+            formattedLogs += log.Date + "\n" + log.Message + "\n\n";
+          });
+          console.log(logString);
+          setLogs(formattedLogs);
           notify("Logs taken successfully!");
         }
         // setLogs(error.response.data.logs);
@@ -127,21 +135,6 @@ const App = () => {
     setLoading(false);
   };
 
-  // function eraseText() {
-  //   document.getElementById("logTextArea").value = "";
-  // }
-
-  // const writeToFile = async () => {
-  //   try {
-  //     const response = await axios.post("http://localhost:3001/export-logs", {
-  //       logs,
-  //     });
-  //     notify(response.data.message);
-  //   } catch (error) {
-  //     console.error(error);
-  //     notify("Error exporting logs to file");
-  //   }
-  // };
   const fetchLogs = async () => {
     setOpen(true);
     setLoading(true);
@@ -161,20 +154,8 @@ const App = () => {
     setLogs([]);
   };
 
-  const writeToFile = async () => {
-    try {
-      const response = await axios.post("http://localhost:3001/export-logs", {
-        logs,
-      });
-      notify(response.data.message);
-    } catch (error) {
-      console.error("Error exporting logs to file:", error);
-      notify("Error exporting logs to file");
-    }
-  };
-
   const handleExportLogs = async () => {
-    const blob = new Blob([logs.join("\n")], { type: "text/plain" });
+    const blob = new Blob([logs], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
@@ -202,16 +183,12 @@ const App = () => {
           port: parseInt(port), // Convert port to integer
         }
       );
-      // console.log(`ip: ${ipAddress} of type ${typeof(ipAddress)}`);
-      // console.log(`port: ${port} of type ${typeof(port)}`);
       setConnectedDevice(response.data.device);
       console.log(response.data.device);
-      alert(`Connected to device: ${response.data.device}`);
-      // notify(`Connected to device: ${response.data.deviceInfo.id}`);
+      notify(`Connected to device: ${response.data.deviceInfo.id}`);
     } catch (error) {
-      console.log("Error connecting to device:////", error);
-      // notify('Failed to connect to device');
-      alert("Failed to connect to device");
+      console.log("Error connecting to device: ", error);
+      notify("Failed to connect to device");
     } finally {
       setLoading(false);
       window.location.reload();
@@ -309,11 +286,18 @@ const App = () => {
                   </label>
 
                   {deviceId ? (
-                    <div className="d-flex">
-                      <div>{deviceId}</div>
+                    <div className="d-flex" style={{ gap: 16 }} readOnly>
+                      {/* <div>{"deviceId"}</div> */}
+                      <div>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={deviceId}
+                        />
+                      </div>
                       <div>
                         <button
-                          className="button-65"
+                          className="button-34"
                           onClick={handleDisconnect}
                         >
                           Disconnect
@@ -368,7 +352,7 @@ const App = () => {
                   rows="10"
                   wrap="off"
                   cols="30"
-                  value={logs.join("\n")}
+                  value={logs}
                   readOnly
                 ></textarea>
               )}

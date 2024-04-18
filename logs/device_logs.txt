@@ -1,9 +1,0 @@
-found the match  bt is: rtl8822es
-found the match  wifi is: rtl8822es
-check loading wifi driver is ok...
-driver loaded
-EXTRA_USER_HANDLE missing or invalid, value=0
-
-Failed to register radio mode change callback
-Failed to set DFS flag; DFS channels may be unavailable.
-Userspace reboot is not supported.

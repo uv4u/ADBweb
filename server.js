@@ -133,7 +133,7 @@ app.get("/device-logs", async (req, res) => {
         //e.mediasharedmp
         console.log("Crash detected");
         console.log(entry.message);
-        logs.push(entry.message);
+        logs.push({ Date: entry.date, Message: entry.message });
         crashDetected = true;
         proc.kill();
       }
