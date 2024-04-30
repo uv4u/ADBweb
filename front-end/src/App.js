@@ -23,27 +23,24 @@ const App = () => {
   const notify = (req) => toast(req);
 
   useEffect(() => {
-    const fetchDeviceID = async () => {
-      try {
-        const response = await axios
-          .get("http://localhost:3001/device-id")
-          .then((response) => {
-            if (response.data && response.data.deviceID) {
-              setDeviceId(response.data.deviceID);
-              notify(`Device : ${response.data.deviceID} connected`);
-              // alert(`Device : ${response.data.deviceID} connected`)
-            }
-          })
-          .catch((err) => {
-            // Handle errors
-            console.error(err);
-          });
-      } catch (error) {
-        console.error("Error: ", error);
-      }
+    // Function to handle SSE events
+    const handleSSE = (event) => {
+      console.log(event);
+
+      const eventData = JSON.parse(event.data);
+      setDeviceId(eventData.deviceID);
     };
 
-    fetchDeviceID();
+    // Open SSE connection
+    const eventSource = new EventSource(
+      "http://localhost:3001/device-id-stream"
+    );
+    eventSource.addEventListener("message", handleSSE);
+
+    // Cleanup
+    return () => {
+      eventSource.close();
+    };
   }, []);
 
   //INSTALL APP
@@ -133,21 +130,6 @@ const App = () => {
     }
     setOpen(false);
     setLoading(false);
-  };
-
-  const fetchLogs = async () => {
-    setOpen(true);
-    setLoading(true);
-    try {
-      const response = await axios.get("http://localhost:3001/device-logs");
-      setLogs(response.data.logs);
-      notify("Logs fetched successfully!");
-    } catch (error) {
-      console.log("Error fetching logs:", error);
-      notify("Error fetching logs");
-    }
-    setLoading(false);
-    setOpen(false);
   };
 
   const eraseText = () => {
@@ -296,12 +278,14 @@ const App = () => {
                         />
                       </div>
                       <div>
-                        <button
-                          className="button-34"
-                          onClick={handleDisconnect}
-                        >
-                          Disconnect
-                        </button>
+                        {!(deviceId.indexOf(":") === -1) && (
+                          <button
+                            className="button-34"
+                            onClick={handleDisconnect}
+                          >
+                            Disconnect
+                          </button>
+                        )}
                       </div>
                     </div>
                   ) : (

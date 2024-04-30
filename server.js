@@ -20,8 +20,6 @@ const corsOpts = {
 
 app.use(cors(corsOpts));
 
-//FETCHING DEVICE ID PART
-
 const getDeviceID = async () => {
   try {
     const devices = await client.listDevices();
@@ -34,6 +32,10 @@ const getDeviceID = async () => {
     return null;
   }
 };
+
+const clients = [];
+
+//FETCHING DEVICE ID PART
 
 //ESTABLISH CONNECTION USING IP AND PORT
 
@@ -232,6 +234,30 @@ app.post("/export-logs", (req, res) => {
 });
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+const sendDeviceIDUpdate = async (res) => {
+  const deviceID = await getDeviceID(); // Get the current device ID
+  res.write(`data: ${JSON.stringify({ deviceID })}\n\n`); // Send SSE event with device ID
+};
+
+app.get("/device-id-stream", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  // Call sendDeviceIDUpdate initially to send current device ID
+  sendDeviceIDUpdate(res);
+
+  // Set up SSE event interval to periodically send updates
+  const intervalID = setInterval(() => {
+    sendDeviceIDUpdate(res);
+  }, 1000); // Example: send update every 1 second
+
+  // Clean up interval when client disconnects
+  req.on("close", () => {
+    clearInterval(intervalID);
+  });
+});
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 app.listen(3001, () => {
