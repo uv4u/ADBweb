@@ -9,6 +9,12 @@ const fs = require("fs");
 
 const app = express();
 
+///////////////////////////////////
+const socketIo = require("socket.io");
+const server = require("http").createServer(app);
+const io = socketIo(server);
+////////////////////////////////////
+
 app.use(bodyParser.json());
 const corsOpts = {
   origin: "*",
@@ -122,19 +128,18 @@ app.get("/device-logs", async (req, res) => {
     let logs = [];
 
     reader.on("entry", (entry) => {
-      console.log(entry);
+      // console.log(entry);
       if (
-        entry.priority === "F" ||
-        entry.priority === "E" ||
-        entry.priority === 7 ||
-        entry.priority === 6 ||
-        // entry.message.includes("com.jio.photos")
-        entry.message.includes("e.mediasharedmp")
+        (entry.priority === "F" ||
+          entry.priority === "E" ||
+          entry.priority === 7 ||
+          entry.priority === 6) &&
+        entry.message.includes("com.jio.photos")
       ) {
         // if (entry.priority === 7 || entry.priority === 6) {
         //e.mediasharedmp
         console.log("Crash detected");
-        console.log(entry.message);
+        console.log(entry);
         logs.push({ Date: entry.date, Message: entry.message });
         crashDetected = true;
         proc.kill();
@@ -171,6 +176,9 @@ app.get("/device-logs", async (req, res) => {
       .json({ error: "An error occurred while fetching device logs" });
   }
 });
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //INSTALL PART
 app.get("/install-apk", async (req, res) => {
