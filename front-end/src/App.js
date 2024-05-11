@@ -5,8 +5,43 @@ import "./modalcss.scss";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// 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 api key
+
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
+
+//Modal imports
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+
+const Groq = require("groq-sdk");
+const groq = new Groq({
+  apiKey: "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",
+  dangerouslyAllowBrowser: true,
+});
+
+async function main(logs) {
+  const chatCompletion = await getGroqChatCompletion(logs);
+  // Print the completion returned by the LLM.
+  // process.stdout.write(chatCompletion.choices[0]?.message?.content || "");
+  console.log(chatCompletion.choices[0]?.message?.content);
+  var analysedString = chatCompletion.choices[0]?.message?.content;
+  analysedString = analysedString.replace(/,(?=\s*["\w]+:)/g, ",\\n");
+  return analysedString;
+}
+async function getGroqChatCompletion(logs) {
+  return groq.chat.completions.create({
+    messages: [
+      {
+        role: "user",
+        content: `Explain and give solution for ${logs}. Keep it short but helpful`,
+      },
+    ],
+    model: "mixtral-8x7b-32768",
+  });
+}
 
 const App = () => {
   const [apkPath, setApkPath] = useState("");
@@ -18,15 +53,17 @@ const App = () => {
   const [ipAddress, setIpAddress] = useState("");
   const [port, setPort] = useState("");
   const [connectedDevice, setConnectedDevice] = useState(null);
+  // const [open, setOpen] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-  const [analysedLog, setAnalysedLog] = useState("No logs found");
+  const [scroll, setScroll] = React.useState("paper");
+  const [analysedLog, setAnalysedLog] = useState("working on it...");
 
   const notify = (req) => toast(req);
 
   useEffect(() => {
     // Function to handle SSE events
     const handleSSE = (event) => {
-      console.log(event);
+      // console.log(event);
 
       const eventData = JSON.parse(event.data);
       setDeviceId(eventData.deviceID);
@@ -91,7 +128,7 @@ const App = () => {
   };
 
   const handleFetchLogs = async () => {
-    setOpen(true);
+    // setOpen(true);
     setLoading(true);
     try {
       const response = await axios.get("http://localhost:3001/device-logs");
@@ -124,103 +161,36 @@ const App = () => {
     setLoading(false);
   };
 
-  const handleAnalyseLogs = () => {
-    console.log("here");
-    const javaExceptions = {
-      "java.lang.ArithmeticException":
-        "Occurs when an arithmetic operation results in an error, such as division by zero.",
-      "java.lang.ArrayIndexOutOfBoundsException":
-        "Occurs when attempting to access an array element at an invalid index.",
-      "java.lang.ArrayStoreException":
-        "Occurs when trying to store an element of an incompatible type in an array.",
-      "java.lang.ClassCastException":
-        "Occurs when attempting to cast an object to a type that is not compatible with its actual type.",
-      "java.lang.ClassNotFoundException":
-        "Occurs when trying to access a class that doesn't exist.",
-      "java.lang.CloneNotSupportedException":
-        "Occurs when attempting to clone an object that does not implement the Cloneable interface.",
-      "java.lang.EnumConstantNotPresentException":
-        "Occurs when an enum constant does not exist.",
-      "java.lang.IllegalAccessException":
-        "Occurs when accessing a field or invoking a method without proper access permissions.",
-      "java.lang.IllegalArgumentException":
-        "Occurs when a method is passed an argument of an illegal or inappropriate type.",
-      "java.lang.IllegalMonitorStateException":
-        "Occurs when a thread attempts to wait, notify, or notifyAll on an object that it does not own.",
-      "java.lang.IllegalStateException":
-        "Occurs when the state of an object is not consistent with the operation being attempted.",
-      "java.lang.IllegalThreadStateException":
-        "Occurs when a thread is not in an appropriate state for the requested operation.",
-      "java.lang.IndexOutOfBoundsException":
-        "Occurs when attempting to access an index outside the bounds of a data structure, such as an array or a string.",
-      "java.lang.InstantiationException":
-        "Occurs when attempting to instantiate an abstract class or an interface, or when the instantiation of a class fails for some other reason.",
-      "java.lang.InterruptedException":
-        "Occurs when a thread is interrupted while it is in a blocking operation, such as waiting for I/O or sleeping.",
-      "java.lang.NegativeArraySizeException":
-        "Occurs when attempting to create an array with a negative size.",
-      "java.lang.NoSuchFieldException":
-        "Occurs when attempting to access a field that does not exist.",
-      "java.lang.NoSuchMethodException":
-        "Occurs when attempting to access a method that does not exist.",
-      "java.lang.NullPointerException":
-        "Occurs when attempting to access or dereference a null object.",
-      "java.lang.NumberFormatException":
-        "Occurs when attempting to convert a string to a numeric type, but the string does not have the appropriate format.",
-      "java.lang.ReflectiveOperationException":
-        "A general exception type that encompasses various reflection-related exceptions, such as ClassNotFoundException, NoSuchFieldException, and NoSuchMethodException.",
-      "java.lang.RuntimeException":
-        "A general exception type that serves as the superclass of all unchecked exceptions.",
-      "java.lang.SecurityException":
-        "Occurs when a security violation is detected.",
-      "java.lang.StringIndexOutOfBoundsException":
-        "Occurs when attempting to access a character at an index that is out of range for a string.",
-      "java.lang.TypeNotPresentException":
-        "Occurs when attempting to access a type that does not exist at runtime due to a missing dependency.",
-      "java.lang.UnsupportedOperationException":
-        "Occurs when attempting to perform an operation that is not supported, typically in the context of an immutable object or an unmodifiable collection.",
-      "java.lang.VirtualMachineError":
-        "A superclass of errors that occur within the Java Virtual Machine.",
-      "java.lang.InternalError":
-        "Indicates an unexpected condition within the Java Virtual Machine.",
-      "java.lang.ExceptionInInitializerError":
-        "Thrown by the JVM when an exception occurs during the evaluation of a static initializer or the initializer for a static variable.",
-      "java.lang.OutOfMemoryError":
-        "Thrown when the Java Virtual Machine cannot allocate an object because it is out of memory, and no more memory could be made available by the garbage collector.",
-      "java.lang.StackOverflowError":
-        "Thrown when the Java Virtual Machine detects that the application's thread stack is exhausted, due to deep recursion.",
-      "java.lang.NoClassDefFoundError":
-        "Thrown if the Java Virtual Machine or a ClassLoader instance tries to load in the definition of a class (as part of a normal method call or as part of creating a new instance using the new expression) and no definition of the class could be found.",
-      "java.lang.LinkageError":
-        "A superclass of all errors that occur when loading and linking class files.",
-    };
-    var current_message = logs;
-    var a;
-    console.log(current_message);
-    if (current_message.indexOf("java") !== -1) {
-      a = current_message.indexOf("java");
-      console.log(a);
-    } else {
-      return;
-    }
+  const handleAnalyseLogs = async () => {
+    console.log(logs);
+    const response = await main(logs);
+    setAnalysedLog(response);
+    return;
+  };
 
-    var s = "";
-    while (current_message[a] !== ":") {
-      s += current_message[a];
-      a++;
-    }
+  const handleClickOpen = (scrollType) => () => {
+    handleAnalyseLogs();
+    setOpen(true);
+    setScroll(scrollType);
+  };
 
-    for (let x in javaExceptions) {
-      if (x === s) {
-        console.log(javaExceptions[s]);
-        setAnalysedLog(s + " : " + javaExceptions[s]);
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const descriptionElementRef = React.useRef(null);
+  React.useEffect(() => {
+    if (open) {
+      const { current: descriptionElement } = descriptionElementRef;
+      if (descriptionElement !== null) {
+        descriptionElement.focus();
       }
     }
-  };
+  }, [open]);
 
   const eraseText = () => {
     setLogs([]);
-    setAnalysedLog("No logs found");
+    setAnalysedLog("working on it...");
   };
 
   const handleExportLogs = async () => {
@@ -446,36 +416,31 @@ const App = () => {
               </button>
               &nbsp;
               {/* /////////////MODAL//////////// */}
-              <a
-                href="#modal"
-                role="button"
-                class="button-34"
+              <button
+                className="button-34"
+                onClick={handleClickOpen("paper")}
                 disabled={!logs.length}
-                style={{ textDecoration: "none" }}
-                onClick={handleAnalyseLogs}
               >
                 Analyse Logs
-              </a>
-              {/* <!-- Modal --> */}
-              <div class="modal-wrapper" id="modal">
-                <div class="modal-body card">
-                  <div class="modal-header">
-                    <h2 class="heading"></h2>
-                    <a
-                      href="#!"
-                      role="button"
-                      class="close"
-                      aria-label="close this modal"
-                    >
-                      <svg viewBox="0 0 24 24">
-                        <path d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z" />
-                      </svg>
-                    </a>
-                  </div>
-                  <p style={{ color: "black" }}>{analysedLog}</p>
-                </div>
-                <a href="#!" class="outside-trigger"></a>
-              </div>
+              </button>
+              <Dialog
+                open={open}
+                onClose={handleClose}
+                scroll={scroll}
+                aria-labelledby="scroll-dialog-title"
+                aria-describedby="scroll-dialog-description"
+              >
+                <DialogTitle id="scroll-dialog-title">Log Analysis</DialogTitle>
+                <DialogContent dividers={scroll === "paper"}>
+                  <DialogContentText
+                    id="scroll-dialog-description"
+                    ref={descriptionElementRef}
+                    tabIndex={-1}
+                  >
+                    <p>{analysedLog}</p>
+                  </DialogContentText>
+                </DialogContent>
+              </Dialog>
               {/* ///////////////////////// */}
             </div>
           </div>
