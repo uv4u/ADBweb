@@ -4,6 +4,7 @@ import "./style.css";
 import "./modalcss.scss";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import androdebug from "./androdebug.png";
 
 // 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 api key
 
@@ -151,8 +152,9 @@ const App = () => {
             formattedLogs += log.Date + "\n" + log.Message + "\n\n";
           });
           // console.log(logString);
-          // setLogs(formattedLogs);
-          setLogs(error.response.data.logs[0].Message);
+          setLogs(formattedLogs);
+          // setLogs(error.response.data.logs[0].Message);
+          // setLogs(error.response.data.logs);
           notify("Logs taken successfully!");
         }
       }
@@ -253,36 +255,61 @@ const App = () => {
   };
 
   return (
-    <div style={{ background: "#EEEDEB" }}>
-      <nav className="navbar" style={{ background: "#3C3633" }}>
-        <div className="container">
-          <span className="navbar-brand h1" style={{ color: "#EEEDEB" }}>
-            ADBWeb
+    <div>
+      <nav className="navbar" style={{ background: "#3559E0", height: 58 }}>
+        <div className="container-fluid">
+          <span
+            className="navbar-brand h1"
+            style={{ color: "#EEEDEB", fontFamily: "Apple Color Emoji" }}
+          >
+            <img
+              src={androdebug}
+              style={{ height: "2.1em", width: "auto" }}
+            ></img>
+            {/* <b>ADBWeb</b> */}
           </span>
         </div>
       </nav>
 
-      <div className="container-sm" style={{ padding: 100 }}>
+      <div
+        className="container-sm d-flex align-items-center"
+        style={{ padding: 50, gap: "100px" }}
+      >
+        <div className="flex-shrink-0">
+          <lottie-player
+            src="https://lottie.host/becde4ed-b29a-401b-89d6-1e826c5429c1/fLbhQkmJFc.json"
+            background="transparent"
+            speed="1"
+            style={{ width: "300px", height: "300px" }}
+            loop
+            autoplay
+            direction="1"
+            mode="normal"
+          ></lottie-player>
+        </div>
         <div
-          className="card text-white mb-3"
+          className="flex-grow-1 ms-3 container-sm card text-white mb-3"
           style={{
-            padding: 50,
+            padding: 0,
             borderRadius: 80,
-            background: "#3C3633",
-            borderColor: "#E0CCBE",
-            borderWidth: 2,
+            background: "#313131",
+            borderColor: "#3559E0",
+            borderWidth: 0.5,
           }}
         >
-          <div className="card-body container-sm">
+          <div className="card-body" style={{ padding: 60 }}>
             <div className="jumbotron">
               {!deviceId && (
                 <div className="IP">
                   <h6>Connect to Device</h6>
-                  <div className="d-flex" style={{ gap: 16 }}>
+                  <div
+                    className="d-flex align-items-center"
+                    style={{ gap: 20 }}
+                  >
                     <div>
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control input1"
                         // style={{ width: "50%" }}
                         value={ipAddress}
                         placeholder="Enter IP address"
@@ -292,7 +319,7 @@ const App = () => {
                     <div>
                       <input
                         type="text"
-                        className="form-control"
+                        className="form-control input1"
                         // style={{ width: "25%" }}
                         value={port}
                         placeholder="Enter port"
@@ -300,14 +327,15 @@ const App = () => {
                       />
                     </div>
                     <button
-                      className={`button-34 ${
+                      className={`button-10 ${
                         !(ipAddress.trim() && port.trim()) ? "" : "valid"
                       }`}
-                      style={{ background: "#5E5DF0", height: "50" }}
                       onClick={connectToDevice}
                       disabled={loading}
                     >
-                      {loading ? "Connecting..." : "Connect"}
+                      <span className="button-content-10">
+                        {loading ? "Connecting..." : "Connect"}
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -326,45 +354,49 @@ const App = () => {
                       <div>
                         <input
                           type="text"
-                          className="form-control"
+                          className="form-control input1"
                           value={deviceId}
                         />
                       </div>
                       <div>
                         {!(deviceId.indexOf(":") === -1) && (
                           <button
-                            className="button-34"
+                            className="button-10"
                             onClick={handleDisconnect}
                           >
-                            Disconnect
+                            <span className="button-content-10">
+                              Disconnect
+                            </span>
                           </button>
                         )}
                       </div>
                     </div>
                   ) : (
-                    <span>No device connected</span>
+                    <h6>No device connected</h6>
                   )}
                 </div>
               </div>
-              <div className="mb-3">
-                <label htmlFor="apkPath" className="form-label">
-                  <h6>APK Path:</h6>
-                </label>
+              <label htmlFor="apkPath" className="form-label">
+                <h6>APK Path:</h6>
+              </label>
+              <div className="d-flex align-items-center" style={{ gap: 24 }}>
                 <input
                   type="text"
-                  className="form-control"
+                  className="form-control input1"
                   id="apkPath"
+                  placeholder="Enter the Path"
+                  style={{ width: "50%" }}
                   value={apkPath}
                   onChange={(e) => setApkPath(e.target.value)}
                 />
+                <button
+                  className={`button-10 ${!apkPath.trim() ? "" : "valid"}`}
+                  type="submit"
+                  disabled={!apkPath.trim()}
+                >
+                  <span className={`button-content-10`}>Install APK</span>
+                </button>
               </div>
-              <button
-                className={`button-34 ${!apkPath.trim() ? "" : "valid"}`}
-                type="submit"
-                disabled={!apkPath.trim()}
-              >
-                Install APK
-              </button>
               <Backdrop
                 sx={{
                   color: "#fff",
@@ -389,39 +421,52 @@ const App = () => {
                   rows="10"
                   wrap="off"
                   cols="30"
+                  style={{
+                    borderRadius: 30,
+                    background: "none",
+                    padding: 10,
+                    boxShadow: "inset 2px 5px 10px rgb(5, 5, 5)",
+                    color: "#fff",
+                    fontSize: "0.8rem",
+                    borderTop: "white",
+                    borderBottom: "white",
+                    borderLeft: "white",
+                    borderRight: "white",
+                  }}
                   value={logs}
                   readOnly
                 ></textarea>
               )}
             </div>
             <div className="flex-box" style={{ gap: 16 }}>
-              <button className="button-34 valid" onClick={handleFetchLogs}>
-                Fetch Logs
+              <button className="button-10" onClick={handleFetchLogs}>
+                {/* FETCH */}
+                <span className="button-content-10">Fetch Logs</span>
               </button>
               &nbsp;
               <button
-                className={`button-34 ${!logs.length ? "" : "valid"}`}
+                className={`button-10`}
                 disabled={!logs.length}
                 onClick={eraseText}
               >
-                Clear
+                <span className="button-content-10">Clear</span>
               </button>
               &nbsp;
               <button
-                className={`button-34 ${!logs.length ? "" : "valid"}`}
+                className={`button-10`}
                 onClick={handleExportLogs}
                 disabled={!logs.length}
               >
-                Save Logs
+                <span className="button-content-10">Save Logs</span>
               </button>
               &nbsp;
               {/* /////////////MODAL//////////// */}
               <button
-                className="button-34"
+                className="button-10"
                 onClick={handleClickOpen("paper")}
                 disabled={!logs.length}
               >
-                Analyse Logs
+                <span className="button-content-10">Analyse Logs</span>
               </button>
               <Dialog
                 open={open}

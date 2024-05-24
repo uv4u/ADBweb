@@ -124,25 +124,27 @@ app.get("/device-logs", async (req, res) => {
   try {
     const proc = spawn("adb", ["logcat", "-B", "all", "*:F", "*:E"]);
     const reader = logcat.readStream(proc.stdout);
+    console.log("here");
     let crashDetected = false;
     let logs = [];
 
     reader.on("entry", (entry) => {
       // console.log(entry);
       if (
-        (entry.priority === "F" ||
-          entry.priority === "E" ||
-          entry.priority === 7 ||
-          entry.priority === 6) &&
+        entry.priority === "F" ||
+        entry.priority === "E" ||
+        entry.priority === 7 ||
+        entry.priority === 6 ||
         entry.message.includes("com.jio.photos")
       ) {
         // if (entry.priority === 7 || entry.priority === 6) {
         //e.mediasharedmp
         console.log("Crash detected");
-        console.log(entry);
+        // console.log(entry);
         logs.push({ Date: entry.date, Message: entry.message });
         crashDetected = true;
         proc.kill();
+        console.log(logs);
       }
     });
 
@@ -199,12 +201,17 @@ app.get("/install-apk", async (req, res) => {
 
   try {
     const devices = await client.listDevices();
-    const device = devices[0];
+    // const device = devices[0];
+    for (let x in devices.length) {
+      await client.install(x.id, apk);
+      console.log(`Installed ${apk} on device ${x.id}`);
+      res.send(`Installed ${apk} on device ${x.id}`);
+    }
 
-    await client.install(device.id, apk);
+    // await client.install(device.id, apk);
 
-    console.log(`Installed ${apk} on device ${device.id}`);
-    res.send(`Installed ${apk} on device ${device.id}`);
+    // console.log(`Installed ${apk} on device ${device.id}`);
+    // res.send(`Installed ${apk} on device ${device.id}`);
   } catch (err) {
     console.error("Lost Connection with Device", err.stack);
     res.status(500).json({ error: "Lost Connection with Device" });
